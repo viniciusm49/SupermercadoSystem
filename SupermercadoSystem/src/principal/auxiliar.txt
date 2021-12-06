@@ -1,0 +1,7 @@
+System.out.println(lista.get(p).nome);
+			System.out.println(lista.get(p).descricao);
+			System.out.println(lista.get(p).dataFormatada());
+			System.out.println(lista.get(p).fornecedor);
+			System.out.println(lista.get(p).precoCompra);
+			System.out.println(lista.get(p).precoCompra);
+			System.out.println(lista.get(p).estoque);
