@@ -1,0 +1,7 @@
+Tue Dec 07 10:51:06 BRT 2021
+--------------------------------------
+RELATORIO DE VENDAS DA SESSÃO
+VENDAS TOTAIS DO DIA: R$0.0
+LUCRO TOTAL DO DIA: R$0.0
+--------------------------------------
+VENDAS DETALHADAS

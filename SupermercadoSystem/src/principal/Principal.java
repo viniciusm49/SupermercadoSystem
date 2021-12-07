@@ -1,13 +1,18 @@
 package principal;
 
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
 
-class Relatorio{
+class Relatorio{//ira armazenar dados de venda da sessão
 	static double vendas;
 	static ArrayList<String> relatorioEscrito = new ArrayList<>();
+	static double lucro;
 }
 
 public class Principal {
@@ -23,21 +28,24 @@ public class Principal {
 		Map<Integer, Empresa> listaEmpresa = new HashMap<>();
 		Map<Integer, Fornecedor> listaFornecedor = new HashMap<>();
 		Map<Integer, Repositor> listaRepositor = new HashMap<>();
-		listaPessoas = Leitura.leituraDePessoas();
+		listaPessoas = Leitura.leituraDePessoas();//ira fazer a leitura dos arquivos .txt para importar os dados já prontos
 		listaProdutos = Leitura.leituraDeProdutos();
 	
 		//Começo da logica
+		System.out.println("Para fazer login como caixa ou repositor, é necessario cadastra-los antes!"
+				+ "\nDados para login: codigo e numero da carteira de trabalho"
+				+ "\n\nBem vindo ao Sistema de Supermercado!");
 		boolean chaveGeral = true;
 		while(chaveGeral) {
-			System.out.println("\n--------------------------------------\n"
-					+ "Bem vindo ao Sistema de Supermercado");
+			System.out.println("--------------------------------------\n"
+					+ "Menu de Login");
 			System.out.println("Escolha um modo de login:");
-			System.out.println("1-Administrador (Menu de Cadastro)\n2-Caixa\n3-Repositor\n4-Encerrar"
+			System.out.println("1-Administrador\n2-Caixa\n3-Repositor\n4-Encerrar"
 					+ "\n--------------------------------------");
 			int num = entrada.nextInt();
 			switch (num) {
 			case 1:
-				System.out.println("1-Menu de Cadastro\n2-Relatorio de vendas\n3-Voltar\n"
+				System.out.println("1-Menu de Cadastro\n2-Relatorio de vendas\n3-Exibir Pessoas Cadastradas\n4-Voltar\n"
 						+ "--------------------------------------");
 				int menuAdm = entrada.nextInt();
 				boolean chaveAdmGeral = true;
@@ -80,10 +88,11 @@ public class Principal {
 						exibirRelatorio();
 						chaveAdmGeral = false;
 					}else if (menuAdm == 3) {
+						exibirPessoasDetalhes(listaPessoas);
+						chaveAdmGeral = false;
+					}else if (menuAdm == 4) {
 						chaveAdmGeral = false;
 						System.out.println("--------------------------------------\n");
-					}else {
-						System.out.println("Codigo invalido");
 					}
 				}
 				break;
@@ -96,7 +105,7 @@ public class Principal {
 					if(numeroCarteira == listaCaixa.get(aux).clt) {
 						boolean chaveCaixa = true;
 						System.out.println("--------------------------------------\n"
-								+ "Login Realizado com Sucesso\nBem vindo " + listaCaixa.get(aux).pessoaCaixa.nome);
+								+ "Login Realizado com Sucesso!\nBem vindo " + listaCaixa.get(aux).pessoaCaixa.nome);
 						while(chaveCaixa) {
 							System.out.println("\nGostaria de? \n1-Exibir Produtos\n2-Realizar Venda\n3-Encerrar Sessão e voltar");
 							int numCaixa = entrada.nextInt();
@@ -157,6 +166,7 @@ public class Principal {
 			case 4:
 				chaveGeral = false;
 				System.out.println("Programa encerrado com sucesso!");
+				gravarDados();
 				break;
 			default:
 				System.out.println("Número inválido");
@@ -168,12 +178,18 @@ public class Principal {
 	//Operações do programa
 	public static Map<Integer,Produto> operProdutos(Map<Integer, Produto>listaAntiga){
 		Scanner entrada = new Scanner(System.in);
-		System.out.println("#######Sistema de Cadastro de Produtos#######");
+		System.out.println("--------------------------------------\nSistema de Cadastro de Produtos");
 		boolean chave = true;
 		int aux;
-
+		System.out.println("\nLista Atual de Produtos:");
+		System.out.println("Cod #### Nome\n");
+		for(int p:listaAntiga.keySet()) {
+			System.out.println(p+"   #### "+listaAntiga.get(p).nome);
+		}
+		
 		while(chave) {
-			System.out.println("O que gostaria de fazer?\n1-Cadastrar\n2-Alterar\n3-Excluir\n4-Voltar ao Menu Principal");
+			System.out.println("--------------------------------------\n"
+					+ "O que gostaria de fazer?\n1-Cadastrar\n2-Alterar\n3-Excluir\n4-Voltar ao Menu Principal");
 			int num = entrada.nextInt();
 			switch (num) {
 			case 1:
@@ -194,6 +210,11 @@ public class Principal {
 					listaAntiga.get(aux).precoCompra = entrada.nextDouble();
 					System.out.println("Informe o preço de venda:");
 					listaAntiga.get(aux).precoVenda = entrada.nextDouble();
+					if(listaAntiga.get(aux).precoCompra == 0 || listaAntiga.get(aux).precoVenda == 0) {
+						System.out.println("O preço não pode ser zero\nCadastro Cancelado!");
+						listaAntiga.remove(aux);
+						return listaAntiga;
+					}
 					System.out.println("Informe a quantidade em estoque:");
 					listaAntiga.get(aux).estoque = entrada.nextInt();
 					System.out.println("Produto Cadastrado com Sucesso!");
@@ -215,6 +236,11 @@ public class Principal {
 					listaAntiga.get(aux).precoCompra = entrada.nextDouble();
 					System.out.println("Informe o novo preço de venda:");
 					listaAntiga.get(aux).precoVenda = entrada.nextDouble();
+					if(listaAntiga.get(aux).precoCompra == 0 && listaAntiga.get(aux).precoVenda == 0) {
+						System.out.println("O preço não pode ser zero\nCadastro Cancelado!");
+						listaAntiga.remove(aux);
+						return listaAntiga;
+					}
 					System.out.println("Informe a nova quantidade em estoque:");
 					listaAntiga.get(aux).estoque = entrada.nextInt();
 					System.out.println("Produto Alterado com Sucesso!");
@@ -270,6 +296,7 @@ public class Principal {
 				+ "\n--------------------------------------");
 						Relatorio.vendas += (lista.get(x).precoVenda*(double)qnt);
 						Relatorio.relatorioEscrito.add("Venda de "+qnt+"unid. de "+ lista.get(x).nome);
+						Relatorio.lucro += (lista.get(x).precoVenda*(double)qnt) - (lista.get(x).precoCompra*(double)qnt);
 					}else {
 						System.out.println("Quantidade em estoque insuficiente!");
 					}			
@@ -306,13 +333,14 @@ public class Principal {
 		System.out.println("--------------------------------------\n"
 				+ "RELATORIO DE VENDAS DA SESSÃO");
 		System.out.println("VENDAS TOTAIS DO DIA: R$" + Relatorio.vendas);
+		System.out.println("LUCRO TOTAL DO DIA: R$"+ Relatorio.lucro);
 		System.out.println("--------------------------------------\n"
 				+ "VENDAS DETALHADAS");
 		for(String s:Relatorio.relatorioEscrito) {
 			System.out.println(s);
 		}
 	}
-	public static int menuPrincipal() {
+ 	public static int menuPrincipal() {
 		Scanner entrada = new Scanner(System.in);
 		System.out.println("####Menu Principal####\n");
 		System.out.println("O que gostaria de fazer?\n1-Vender\n2-Lista de Produtos\n"
@@ -324,7 +352,7 @@ public class Principal {
 		System.out.println("--------------------------------------\nMenu de Cadastros\n");
 		System.out.println("1-Cadastro de Pessoas\n2-Cadastro de Clientes\n"
 				+ "3-Cadastro de Empresas\n4-Cadastro de Fornecedor\n5-Cadastro de Caixa\n"
-				+ "6-Cadastro de Repositor\n7-Operações de Produto\n8-Voltar ao Menu Principal"
+				+ "6-Cadastro de Repositor\n7-Cadastro de Produto\n8-Voltar ao Menu Principal"
 				+ "\n--------------------------------------");
 		return entrada.nextInt();
 	}
@@ -387,7 +415,7 @@ public class Principal {
 				System.out.println("Codigo inexistente!\n");
 			}
 		} while (x!=0);
-		entrada.close();
+		
 	}
 	//Metodos de Cadastro
 	public static Map<Integer, Pessoa> cadastroPessoas(Map<Integer, Pessoa> lista){
@@ -438,7 +466,7 @@ public class Principal {
 				lista.get(x).pessoaCaixa = listaPessoas.get(y);
 				System.out.println("Digite o numero da Carteira de Trabalho");
 				lista.get(x).clt = entrada.nextInt();
-				System.out.println("Caixa Cadastrado com Sucesso!/nVoltando a Menu Principal!...");
+				System.out.println("Caixa Cadastrado com Sucesso!\nVoltando ao Menu de Cadastro...");
 			}else {
 				System.out.println("Codigo ja utilizado!");
 			}
@@ -705,7 +733,7 @@ public class Principal {
 				lista.get(x).pessoaRepositor = listaPessoas.get(y);
 				System.out.println("Digite o numero da Carteira de Trabalho");
 				lista.get(x).clt = entrada.nextInt();
-				System.out.println("Repositor Cadastrado com Sucesso!/Voltando a Menu Principal!...");
+				System.out.println("Repositor Cadastrado com Sucesso!\nVoltando...");
 			}else {
 				System.out.println("Codigo ja utilizado!\nVoltando ao Menu Principal...");
 			}
@@ -740,6 +768,28 @@ public class Principal {
 			
 		}
 		return lista;
+	}
+	
+	public static void gravarDados()  {
+
+		try {
+			FileWriter arq = new FileWriter("C:\\Users\\vinic\\Desktop\\SupermercadoSystem\\src\\bancodedados\\relatorioVendas.txt");
+			PrintWriter gravarArq = new PrintWriter(arq);
+			gravarArq.println(Calendar.getInstance().getTime());
+			gravarArq.println("--------------------------------------\n"
+					+ "RELATORIO DE VENDAS DA SESSÃO");
+			gravarArq.println("VENDAS TOTAIS DO DIA: R$" + Relatorio.vendas);
+			gravarArq.println("LUCRO TOTAL DO DIA: R$"+ Relatorio.lucro);
+			gravarArq.println("--------------------------------------\n"
+					+ "VENDAS DETALHADAS");
+			for(String s:Relatorio.relatorioEscrito) {
+				gravarArq.println(s);
+			}
+			gravarArq.close();
+		} catch (IOException e) {
+			System.out.println("Não foi possivel criar o arquivo!");
+		}
+
 	}
 
 }
